@@ -5,7 +5,8 @@ Marketch is a Sketch 3 plug-in for automatically generating html page that can m
 ## Change Log
 
 #### `v1.0.6`
-* [add] generate separate link to every artboard
+* [add] generates separate link to every artboard
+* [add] shortcuts to navigate between artboards: `⌘` + `up` and `⌘` + `down`
 
 #### `v1.0.5`
 * [new]use "-" prefix for page name or artboard name to prevent them to be exported. if you realy want "-", just use "\\-". also use "\\\" to get a "\".
