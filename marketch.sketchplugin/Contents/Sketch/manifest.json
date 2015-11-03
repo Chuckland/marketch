@@ -6,7 +6,7 @@
     "authorEmail": "tudou527@gmail.com",
     "commands": [
         {
-            "name": "Export as zipFile",
+            "name": "Export",
             "identifier": "export",
             "shortcut": "command shift m",
             "script": "zip.cocoascript"

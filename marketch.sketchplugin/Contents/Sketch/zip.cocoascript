@@ -13,7 +13,7 @@ ExportAsZip.prototype = {
         //marketch
         var marketch = null;
         //打包结果
-        var zipResult = null;
+        var result = null;
 
         //点了确定按钮
         if(expConfig.button == 1000){
@@ -31,7 +31,7 @@ ExportAsZip.prototype = {
             }
 
             //获取保存路径
-            exportPath = this.getSavePath();
+            exportPath = expConfig.zip ? this.getZipFileSavePath() : this.getFolderSavePath();
 
             if(exportPath){
                 marketch = new Marketch().run({
@@ -40,14 +40,19 @@ ExportAsZip.prototype = {
                     saveSource: true
                 });
 
-                zipResult = util.zipFile(marketch.tmpPath.basePath, exportPath);
+                if (expConfig.zip) {
+                    result = util.zipFile(marketch.tmpPath.basePath, exportPath);
+                } else {
+                    [[NSFileManager defaultManager] copyPath:marketch.tmpPath.basePath toPath:exportPath handler:nil];
+                    result = true;
+                }
 
-                if(zipResult){
+                if(result){
                     //task执行成功
                     doc.showMessage(I18N.EXPORTSUCCESS);
                     if (expConfig.reveal) {
-                        var zipURL = [NSURL fileURLWithPath: exportPath];
-                        var fileURLs = [NSArray arrayWithObjects:zipURL, nil];
+                        var url = [NSURL fileURLWithPath: exportPath];
+                        var fileURLs = [NSArray arrayWithObjects:url, nil];
                         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
                     }
                 }else{
@@ -62,6 +67,7 @@ ExportAsZip.prototype = {
         var altWin = COSAlertWindow.new();
         var items = [I18N.SELECTEDARTBOARD, I18N.ARTBOARDONPAGE, I18N.ALLARTBOARD];
         var comboBox = NSComboBox.alloc().initWithFrame(NSMakeRect(0,0,200,25));
+        var exportAsZipBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
         var exportBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
         var revealBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
 
@@ -72,16 +78,21 @@ ExportAsZip.prototype = {
 
         comboBox.addItemsWithObjectValues(items);
         comboBox.selectItemAtIndex(2);
-        
+
+        exportAsZipBox.setTitle(I18N.EXPORTASZIP);
+        exportAsZipBox.setButtonType(NSSwitchButton);
+        exportAsZipBox.setState(true);
+
         exportBox.setTitle(I18N.EXPORTEVERYLAYER);
         exportBox.setButtonType(NSSwitchButton);
         exportBox.setState(true);
-        
+
         revealBox.setTitle(I18N.REVEALINFINDER);
         revealBox.setButtonType(NSSwitchButton);
         revealBox.setState(true);
-        
+
         altWin.addAccessoryView(comboBox);
+        altWin.addAccessoryView(exportAsZipBox);
         altWin.addAccessoryView(exportBox);
         altWin.addAccessoryView(revealBox);
 
@@ -90,6 +101,7 @@ ExportAsZip.prototype = {
             button: altWin.runModal(),
             //需要导出的画板返回值为索引
             artboard: comboBox.indexOfSelectedItem(),
+            zip: exportAsZipBox.state(),
             //是否导出每个图层的图片
             layer: exportBox.state(),
             //是否在导出完成后打开 Finder
@@ -98,7 +110,7 @@ ExportAsZip.prototype = {
     },
 
     //获取zip包保存路径
-    getSavePath: function(){
+    getZipFileSavePath: function(){
         var savePanel = NSSavePanel.savePanel();
         var docName = util.toJSString(doc.displayName());
 
@@ -117,6 +129,32 @@ ExportAsZip.prototype = {
 
         //设置默认导出zip包的文件名为sketch源文件名
         savePanel.setNameFieldStringValue([NSString stringWithFormat:@"%@.zip", docName]);
+
+        if (savePanel.runModal() != NSOKButton){
+            return false;
+        }else{
+            return savePanel.URL().path();
+        }
+    },
+
+    getFolderSavePath: function(){
+        var savePanel = NSSavePanel.savePanel();
+        var docName = util.toJSString(doc.displayName());
+
+        savePanel.setTitle(I18N.EXPORT);
+        savePanel.setNameFieldLabel(I18N.EXPORTTO);
+        savePanel.setShowsTagField(false);
+        savePanel.setAllowsOtherFileTypes(false);
+        savePanel.setCanCreateDirectories(true);
+
+        if(!doc.fileURL()){
+            docName = 'Untitled';
+        }else{
+            docName = docName.replace('.sketch', '');
+        }
+
+        //设置默认导出zip包的文件名为sketch源文件名
+        savePanel.setNameFieldStringValue([NSString stringWithFormat:@"%@", docName]);
 
         if (savePanel.runModal() != NSOKButton){
             return false;
