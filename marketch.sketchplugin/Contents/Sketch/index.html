@@ -158,7 +158,8 @@ input[type=text], textarea {outline:0;padding:3px;}
         .aside h2 {position:relative;}
             .aside h2 span {display:block;margin-right:20px;height:33px;font-weight:700;color:#B9C0C4;overflow:hidden;}
             .aside h2:after {border-color:#9CA3A7;}
-        .aside h2, .aside h3 {font-weight:normal;text-overflow:ellipsis;overflow:hidden;white-space: nowrap;}
+        .aside h2, .aside a {font-weight:normal;text-overflow:ellipsis;overflow:hidden;white-space: nowrap;}
+        .aside a {color:#9CA3A7;display:block;}
         .page-list {overflow:hidden;}
             .page-list li {line-height:33px;text-indent:10px;font-size:12px;cursor:pointer;color:#9CA3A7;}
             .page-list .page-active h2 {background:#3775A8;}
@@ -222,6 +223,8 @@ var Marketch = function(obj){
         target: null
     };
     this.sketchData = obj.sketchData;
+
+    this.targetArtboardName = obj.targetArtboardName;
     //当前画板id
     this.currentArtboardId = null;
     //当前画板所有图层数据
@@ -432,9 +435,9 @@ Marketch.prototype = {
 
             for(var i=data.artboardId.length-1; i>=0; i--){
                 var artboardId = data.artboardId[i];
-                var artboradData = self.sketchData.artboard[artboardId];
+                var artboardData = self.sketchData.artboard[artboardId];
                 pageListHtml.push(
-                    '<li data-ab="'+ artboradData.id +'"><h3 title="' + self.decode(artboradData.name) + '">'+ self.decode(artboradData.name) +'</h3></li>'
+                    '<li data-ab="'+ artboardData.id +'"><a title="' + self.decode(artboardData.name) + '" href="#artboardName=' + self.decode(artboardData.name) + '">'+ self.decode(artboardData.name) +'</a></li>'
                 );
             }
 
@@ -445,7 +448,7 @@ Marketch.prototype = {
         aside.html(pageListHtml.join(''));
 
         //切换画板
-        $("#aside h3").on('click', function(e){
+        $("#aside a").on('click', function(e){
             var el = $(this).parent();
             var artboardId = el.attr('data-ab');
             var selectArtData = self.sketchData.artboard[artboardId];
@@ -465,6 +468,16 @@ Marketch.prototype = {
             //加载目标画板
             self.loadArtboard(selectArtData);
         }).eq(0).click();
+
+        // Select specified artboard if related parameter is set
+        if (this.targetArtboardName) {
+            var targetArtboardName = this.targetArtboardName;
+            $("#aside a").filter(function(index, element) {
+                return element.title == targetArtboardName;
+            }).eq(0).click();
+        } else {
+            location.hash = "#artboardName=" + encodeURIComponent($("#aside a")[0].title);
+        }
 
         $("#unit").on('click', function() {
             var dropdown = $(this).siblings(".dropdown");
@@ -1132,10 +1145,20 @@ Marketch.prototype = {
     }
 }
 
+var getParameterByName = function(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[#&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.hash);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
 var xdata = document.createElement('script');
 xdata.onload = function(){
+    var artboardName = getParameterByName("artboardName");
+
     new Marketch({
-        sketchData: pageData
+        sketchData: pageData,
+        targetArtboardName: artboardName
     }).render();
 }
 xdata.src = 'data.js';
