@@ -1142,6 +1142,51 @@ Marketch.prototype = {
                 this.changeRulerState('container-out', data);
             }
         }
+    },
+
+    goToUpArtboard: function() {
+        var activeArtboard = $('#aside .art-active');
+        var prevArtboard = activeArtboard.prevAll('#aside li').first();
+        if (prevArtboard.length != 1) return true;
+        prevArtboard.find('a').click();
+        return false;
+    },
+
+    goToDownArtboard: function() {
+        var activeArtboard = $('#aside .art-active');
+        var nextArtboard = activeArtboard.nextAll('#aside li').first();
+        if (nextArtboard.length != 1) return true;
+        nextArtboard.find('a').click();
+        return false;
+    }
+}
+
+$.ctrl = function (e) {
+    if (e.ctrlKey) return true;
+    if (e.metaKey) return true;
+    return false;
+};
+
+var handleArrowKeys = function(e) {
+    if (!marketch) {
+        return false;
+    }
+
+    e = e || window.event;
+    var keyCode = e.keyCode || e.which,
+        arrow = { up: 38, down: 40 };
+
+    if ($.ctrl(e)) {
+        switch (keyCode) {
+            case arrow.up:
+                if (!marketch.goToUpArtboard())
+                    e.preventDefault();
+                break;
+            case arrow.down:
+                if (!marketch.goToDownArtboard())
+                    e.preventDefault();
+                break;
+        }
     }
 }
 
@@ -1152,17 +1197,22 @@ var getParameterByName = function(name) {
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+var marketch = null;
+
 var xdata = document.createElement('script');
 xdata.onload = function(){
     var artboardName = getParameterByName("artboardName");
 
-    new Marketch({
+    marketch = new Marketch({
         sketchData: pageData,
         targetArtboardName: artboardName
-    }).render();
+    });
+    marketch.render();
 }
 xdata.src = 'data.js';
 document.body.appendChild(xdata);
+
+document.onkeydown = handleArrowKeys;
 </script>
 </body>
 </html>
