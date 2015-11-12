@@ -469,7 +469,7 @@ Marketch.prototype = {
             self.loadArtboard(selectArtData);
         }).eq(0).click();
 
-        // Select specified artboard if related parameter is set
+        // Show artboard by passed URL parameter
         if (this.targetArtboardName) {
             var targetArtboardName = this.targetArtboardName;
             $("#aside a").filter(function(index, element) {
@@ -1148,7 +1148,11 @@ Marketch.prototype = {
         var activeArtboard = $('#aside .art-active');
         var prevArtboard = activeArtboard.prevAll('#aside li').first();
         if (prevArtboard.length != 1) return true;
-        prevArtboard.find('a').click();
+
+        var artboardLink = prevArtboard.find('a');
+        artboardLink.click();
+        location.hash = artboardLink[0].hash;
+
         return false;
     },
 
@@ -1156,7 +1160,11 @@ Marketch.prototype = {
         var activeArtboard = $('#aside .art-active');
         var nextArtboard = activeArtboard.nextAll('#aside li').first();
         if (nextArtboard.length != 1) return true;
-        nextArtboard.find('a').click();
+
+        var artboardLink = nextArtboard.find('a');
+        artboardLink.click();
+        location.hash = artboardLink[0].hash;
+
         return false;
     }
 }
