@@ -125,6 +125,8 @@ Marketch.prototype = {
             return false;
         }
 
+        this.getSketchName();
+
         //复制当前sketch文件到临时文件目录
         expConfig.saveSource && this.copySkethFile();
 
@@ -164,25 +166,27 @@ Marketch.prototype = {
         this.tmpPath.htmlPath = htmlPath;
     },
 
+    getSketchName: function() {
+        if (!this.sketchData.sketchName) {
+            this.sketchData.sketchName = util.toJSString(doc.displayName().replace(/\.sketch/, ""));
+        }
+        return this.sketchData.sketchName;
+    },
+
     //复制当前sketch文件
     copySkethFile: function(){
         var basePath = this.tmpPath.basePath;
-        var sketchName = util.toJSString(doc.displayName());
+        var fileSketchName = this.getSketchName() + ".sketch";
+
         //sketch源文件在临时目录中的保存路径
         var savePath = '';
         //sketch源文件所在路径
         var sketchFilePath = doc.fileURL();
 
-        
-        if(!(/\.sketch$/.test(sketchName))){
-            sketchName += '.sketch';
-        }
+        savePath = basePath +'/'+ fileSketchName;
 
-        savePath = basePath +'/'+ sketchName;
-            
         //如果sketch文件没有保存sketchFilePath会返回null就不需要复制sketch源文件了
         if(sketchFilePath){
-            this.sketchData.sketchName = sketchName;
             sketchFilePath = sketchFilePath.path();
             [[NSFileManager defaultManager] copyPath:sketchFilePath toPath:savePath handler:nil];
         }

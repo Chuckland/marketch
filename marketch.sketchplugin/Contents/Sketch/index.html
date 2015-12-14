@@ -254,6 +254,7 @@ Marketch.prototype = {
     },
 
     render: function(){
+        this.setTitle();
         //创建选中图层的标注
         this.buildMarker();
         //创建虚线导航灯塔
@@ -1166,6 +1167,10 @@ Marketch.prototype = {
         location.hash = artboardLink[0].hash;
 
         return false;
+    },
+
+    setTitle: function() {
+        document.title = this.sketchData.sketchName;
     }
 }
 
