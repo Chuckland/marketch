@@ -34,30 +34,38 @@ ExportAsZip.prototype = {
             exportPath = expConfig.zip ? this.getZipFileSavePath() : this.getFolderSavePath();
 
             if(exportPath){
-                marketch = new Marketch().run({
-                    layer: expConfig.layer,
-                    artboard: artboardType,
-                    saveSource: expConfig.source
-                });
+                coscript.shouldKeepAround = true;
 
-                if (expConfig.zip) {
-                    result = util.zipFile(marketch.tmpPath.basePath, exportPath);
-                } else {
-                    [[NSFileManager defaultManager] copyPath:marketch.tmpPath.basePath toPath:exportPath handler:nil];
-                    result = true;
-                }
+                doc.showMessage(I18N.EXPORTING);
 
-                if(result){
-                    //task执行成功
-                    doc.showMessage(I18N.EXPORTSUCCESS);
-                    if (expConfig.reveal) {
-                        var url = [NSURL fileURLWithPath: exportPath];
-                        var fileURLs = [NSArray arrayWithObjects:url, nil];
-                        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+                // 延迟1s执行，避免阻塞ui
+                [coscript scheduleWithInterval:1 jsFunction:function(cinterval) {
+                    marketch = new Marketch().run({
+                        layer: expConfig.layer,
+                        artboard: artboardType,
+                        saveSource: expConfig.source
+                    });
+
+                    if (expConfig.zip) {
+                        result = util.zipFile(marketch.tmpPath.basePath, exportPath);
+                    } else {
+                        [[NSFileManager defaultManager] copyPath:marketch.tmpPath.basePath toPath:exportPath handler:nil];
+                        result = true;
                     }
-                }else{
-                    doc.showMessage(I18N.EXPORTFAIL);
-                }
+
+                    if(result){
+                        doc.showMessage(I18N.EXPORTSUCCESS);
+                        if (expConfig.reveal) {
+                            var url = [NSURL fileURLWithPath: exportPath];
+                            var fileURLs = [NSArray arrayWithObjects:url, nil];
+                            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+                        }
+                    }else{
+                        doc.showMessage(I18N.EXPORTFAIL);
+                    }
+
+                    coscript.shouldKeepAround = false;
+                }];
             }
         }
     },
@@ -171,7 +179,7 @@ ExportAsZip.prototype = {
     }
 }
 
-function onRun(context){
+var onRun = function(context){
     ctx = context;
     doc = context.document;
     new ExportAsZip().setup();

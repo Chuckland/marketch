@@ -4,6 +4,9 @@ Marketch is a Sketch 3 plug-in for automatically generating html page that can m
 
 ## Change Log
 
+#### `v1.0.7`
+* [update] 3.4.4 support
+
 #### `v1.0.6`
 * [add] generates separate link to every artboard
 * [add] shortcuts to navigate between artboards: `⌘` + `up` and `⌘` + `down`

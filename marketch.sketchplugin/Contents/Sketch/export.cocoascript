@@ -479,14 +479,14 @@ Marketch.prototype = {
         };
 
         sliceRect = NSMakeRect(absoluteRect.x(), absoluteRect.y(), absoluteRect.width(), absoluteRect.height());
-        slice = [[MSSliceMaker slicesFromExportableLayer:layer inRect:sliceRect] firstObject];
+        slice = [[MSSliceMaker slicesFromExportableLayer:layer inRect:sliceRect useIDForName:false] firstObject];
         slice.page = doc.currentPage().copyLightweight();
         slice.format = exportConfig.format;
 
         if(options.name == 'artboard'){
             //画板按1x导出
             slice.scale = 1;
-            exportConfig.name = options.path +'/'+ options.name +'.png',
+            exportConfig.name = options.path +'/'+ options.name +'.png';
             [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
         }else{
             //导出2x的图

@@ -19,7 +19,7 @@ var console = (function(){
             [view setVerticallyResizable:true];
             [view setHorizontallyResizable:true];
             [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-            [[view textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+            // [[view textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
             [[view textContainer] setWidthTracksTextView:false];
 
             [scrollview setDocumentView:view];
@@ -149,6 +149,7 @@ var util = {
                 'language': 'cn',
                 'EXPORT': '导出',
                 'EXPORTTO': '导出到：',
+                'EXPORTING': '正在导出，请稍后...',
                 'NOARTBOARD': '没有选择任何画板',
                 'EXPORTSUCCESS': '打包导出成功',
                 'EXPORTFAIL': '打包导出失败',
@@ -190,6 +191,7 @@ var util = {
                 'language': 'en',
                 'EXPORT': 'Export',
                 'EXPORTTO': 'Export to',
+                'EXPORTING': 'Exporting...',
                 'NOARTBOARD': 'No artboards found.',
                 'EXPORTSUCCESS': 'Export success.',
                 'EXPORTFAIL': 'Export fail.',
