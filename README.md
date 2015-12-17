@@ -4,6 +4,10 @@ Marketch is a Sketch 3 plug-in for automatically generating html page that can m
 
 ## Change Log
 
+#### `v1.0.9`
+* [add] export option for layer scale
+* [add] saving export options
+
 #### `v1.0.8`
 * [add] use sketch document name as page title
 
