@@ -1,11 +1,24 @@
 @import "export.cocoascript";
+@import "pluginDefaults.js";
 
 //作为zip包导出
 var ExportAsZip = function(){};
 ExportAsZip.prototype = {
     setup: function(){
+        var initialValues = {
+            selectExportArtboard: 2,
+            exportAsZip: true,
+            exportSourceFile: true,
+            exportEveryLayer: true,
+            revealInFinder: true
+        };
+        var userDefaults = initDefaults(
+            "com.marketch.cosa.98908c77-3d38-48fa-8c7c-1bb465f67eb8",
+            initialValues
+        );
+
         //导出选项
-        var expConfig = this.getExportConfig();
+        var expConfig = this.getExportConfig(userDefaults);
         //保存路径
         var exportPath = null;
         //画板类型
@@ -71,7 +84,7 @@ ExportAsZip.prototype = {
     },
 
     //获取导出选项
-    getExportConfig: function(){
+    getExportConfig: function(userDefaults){
         var altWin = COSAlertWindow.new();
         var items = [I18N.SELECTEDARTBOARD, I18N.ARTBOARDONPAGE, I18N.ALLARTBOARD];
         var comboBox = NSComboBox.alloc().initWithFrame(NSMakeRect(0,0,200,25));
@@ -86,23 +99,23 @@ ExportAsZip.prototype = {
         altWin.addButtonWithTitle(I18N.CANCEl);
 
         comboBox.addItemsWithObjectValues(items);
-        comboBox.selectItemAtIndex(2);
+        comboBox.selectItemAtIndex(userDefaults.selectExportArtboard);
 
         exportAsZipBox.setTitle(I18N.EXPORTASZIP);
         exportAsZipBox.setButtonType(NSSwitchButton);
-        exportAsZipBox.setState(true);
+        exportAsZipBox.setState(userDefaults.exportAsZip);
 
         exportBox.setTitle(I18N.EXPORTEVERYLAYER);
         exportBox.setButtonType(NSSwitchButton);
-        exportBox.setState(true);
+        exportBox.setState(userDefaults.exportEveryLayer);
 
         exportSourceBox.setTitle(I18N.EXPORTSOURCEFILE);
         exportSourceBox.setButtonType(NSSwitchButton);
-        exportSourceBox.setState(true);
+        exportSourceBox.setState(userDefaults.exportSourceFile);
 
         revealBox.setTitle(I18N.REVEALINFINDER);
         revealBox.setButtonType(NSSwitchButton);
-        revealBox.setState(true);
+        revealBox.setState(userDefaults.revealInFinder);
 
         altWin.addAccessoryView(comboBox);
         altWin.addAccessoryView(exportAsZipBox);
@@ -110,7 +123,7 @@ ExportAsZip.prototype = {
         altWin.addAccessoryView(exportBox);
         altWin.addAccessoryView(revealBox);
 
-        return {
+        var result = {
             //用户点击按钮 确认返回1000，取消返回1001
             button: altWin.runModal(),
             //需要导出的画板返回值为索引
@@ -121,7 +134,18 @@ ExportAsZip.prototype = {
             source: exportSourceBox.state(),
             //是否在导出完成后打开 Finder
             reveal: revealBox.state()
-        }
+        };
+
+        // Save set parameters from modal
+        userDefaults.selectExportArtboard = result.artboard;
+        userDefaults.exportAsZip = result.zip;
+        userDefaults.exportEveryLayer = result.layer;
+        userDefaults.exportSourceFile = result.source;
+        userDefaults.revealInFinder = result.reveal;
+
+        saveDefaults(userDefaults);
+
+        return result;
     },
 
     //获取zip包保存路径
