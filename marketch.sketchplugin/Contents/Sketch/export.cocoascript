@@ -35,6 +35,7 @@ var Marketch = function(){
     this.sketchData = {
         //是否导出每个子图层
         exportEveryLayer: false,
+        scale2x: false,
         //sketch文件名
         sketchName: '',
         language: I18N.language,
@@ -87,6 +88,8 @@ Marketch.prototype = {
         basePath = this.tmpPath.basePath;
         //预览需要根据是否导出图层为图片选项决定是否显示导出按钮
         this.sketchData.exportEveryLayer = expConfig.layer;
+
+        this.sketchData.scale2x = expConfig.scale2x;
 
         //导出选中画板
         if(expConfig.artboard == 'selected'){
@@ -280,7 +283,8 @@ Marketch.prototype = {
             //导出文件名（不包含扩展名）
             name: '',
             //导出路径
-            path: obj.artboardPath
+            path: obj.artboardPath,
+            scale2x: this.sketchData.scale2x
         }
 
         //画板下的切片
@@ -357,7 +361,8 @@ Marketch.prototype = {
                         //导出切片
                         exportLayerAsImage && this.exportLayerAsImage(theLayer, {
                             name: layerName,
-                            path: obj.artboardPath +'/slice'
+                            path: obj.artboardPath +'/slice',
+                            scale2x: exportConfig.scale2x
                         });
                         break;
 
@@ -494,8 +499,10 @@ Marketch.prototype = {
             [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
         }else{
             //导出2x的图
-            slice.scale = 2;
-            [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
+            if (options.scale2x) {
+                slice.scale = 2;
+                [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
+            }
             //导出1x的图
             slice.scale = 1;
             exportConfig.name = exportConfig.name.replace('@2x.png', '@1x.png');

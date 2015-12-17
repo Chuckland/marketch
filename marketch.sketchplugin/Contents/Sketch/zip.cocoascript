@@ -10,6 +10,7 @@ ExportAsZip.prototype = {
             exportAsZip: true,
             exportSourceFile: true,
             exportEveryLayer: true,
+            scale2x: false,
             revealInFinder: true
         };
         var userDefaults = initDefaults(
@@ -56,7 +57,8 @@ ExportAsZip.prototype = {
                     marketch = new Marketch().run({
                         layer: expConfig.layer,
                         artboard: artboardType,
-                        saveSource: expConfig.source
+                        saveSource: expConfig.source,
+                        scale2x: expConfig.scale2x
                     });
 
                     if (expConfig.zip) {
@@ -91,6 +93,7 @@ ExportAsZip.prototype = {
         var exportAsZipBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
         var exportSourceBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
         var exportBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
+        var scale2xBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
         var revealBox = NSButton.alloc().initWithFrame(NSMakeRect(0,0,250,25));
 
         altWin.setMessageText('Marketch');
@@ -109,6 +112,10 @@ ExportAsZip.prototype = {
         exportBox.setButtonType(NSSwitchButton);
         exportBox.setState(userDefaults.exportEveryLayer);
 
+        scale2xBox.setTitle(I18N.SCALE2X);
+        scale2xBox.setButtonType(NSSwitchButton);
+        scale2xBox.setState(userDefaults.scale2x);
+
         exportSourceBox.setTitle(I18N.EXPORTSOURCEFILE);
         exportSourceBox.setButtonType(NSSwitchButton);
         exportSourceBox.setState(userDefaults.exportSourceFile);
@@ -121,6 +128,7 @@ ExportAsZip.prototype = {
         altWin.addAccessoryView(exportAsZipBox);
         altWin.addAccessoryView(exportSourceBox);
         altWin.addAccessoryView(exportBox);
+        altWin.addAccessoryView(scale2xBox);
         altWin.addAccessoryView(revealBox);
 
         var result = {
@@ -131,6 +139,7 @@ ExportAsZip.prototype = {
             zip: exportAsZipBox.state(),
             //是否导出每个图层的图片
             layer: exportBox.state(),
+            scale2x: scale2xBox.state(),
             source: exportSourceBox.state(),
             //是否在导出完成后打开 Finder
             reveal: revealBox.state()
@@ -140,6 +149,7 @@ ExportAsZip.prototype = {
         userDefaults.selectExportArtboard = result.artboard;
         userDefaults.exportAsZip = result.zip;
         userDefaults.exportEveryLayer = result.layer;
+        userDefaults.scale2x = result.scale2x;
         userDefaults.exportSourceFile = result.source;
         userDefaults.revealInFinder = result.reveal;
 

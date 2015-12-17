@@ -877,7 +877,7 @@ Marketch.prototype = {
                     '<dd>',
                         '<ul>',
                             '<li>',
-                                '<label>', this.I18N['SIZE'] ,'</label><select><option value="@2x">2x</option><option select value="@1x">1x</option></select>',
+                                '<label>', this.I18N['SIZE'] ,'</label><select><option selected value="@1x">1x</option><option ' + (this.sketchData.scale2x ? '' : 'disabled') + ' value="@2x">2x</option></select>',
                             '</li>',
                             '<li>',
                                 '<label>', this.I18N['FORMAT'] ,'</label><select><option value="png">png</option></select>',
