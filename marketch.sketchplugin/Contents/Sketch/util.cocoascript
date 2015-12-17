@@ -373,8 +373,14 @@ var util = {
             }
         }
 
+        if(config.type == 'artboard') {
+            // Replace space to ground symbol
+            layerData.name = layerData.name.replace(/\%20/g, '_');
+            return layerData;
+        }
+
         //对于画板、slice、位图只需要返回基本数据
-        if(config.type == 'artboard' || config.type == 'slice' || config.type == 'bitmap'){
+        if(config.type == 'slice' || config.type == 'bitmap'){
             return layerData;
         }
 

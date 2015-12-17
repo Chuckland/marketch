@@ -171,7 +171,7 @@ Marketch.prototype = {
 
     getSketchName: function() {
         if (!this.sketchData.sketchName) {
-            this.sketchData.sketchName = util.toJSString(doc.displayName().replace(/\.sketch/, ""));
+            this.sketchData.sketchName = util.toJSString(doc.displayName().replace(/\.sketch$/, ""));
         }
         return this.sketchData.sketchName;
     },
