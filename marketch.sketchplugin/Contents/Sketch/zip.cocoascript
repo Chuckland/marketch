@@ -13,7 +13,7 @@ ExportAsZip.prototype = {
             scale2x: false,
             revealInFinder: true
         };
-        var userDefaults = initDefaults(
+        var userDefaults = util.initDefaults(
             "com.marketch.cosa.98908c77-3d38-48fa-8c7c-1bb465f67eb8",
             initialValues
         );
@@ -153,7 +153,7 @@ ExportAsZip.prototype = {
         userDefaults.exportSourceFile = result.source;
         userDefaults.revealInFinder = result.reveal;
 
-        saveDefaults(userDefaults);
+        util.saveDefaults(userDefaults);
 
         return result;
     },
