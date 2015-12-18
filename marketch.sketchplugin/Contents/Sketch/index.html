@@ -1182,7 +1182,7 @@ Marketch.prototype = {
     },
 
     displayLocation: function(location) {
-        $('#location').text(location);
+        $('#location').text(decodeURIComponent(location));
     }
 }
 
