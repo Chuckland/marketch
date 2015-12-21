@@ -472,7 +472,7 @@ Marketch.prototype = {
             self.loadArtboard(selectArtData);
 
             // Display current location
-            self.displayLocation(location.href);
+            self.displayLocation(e.target.href);
         }).eq(0).click();
 
         // Show artboard by passed URL parameter
@@ -1159,7 +1159,6 @@ Marketch.prototype = {
         var artboardLink = prevArtboard.find('a');
         artboardLink.click();
         location.hash = artboardLink[0].hash;
-        this.displayLocation(location.href);
 
         return false;
     },
@@ -1172,7 +1171,6 @@ Marketch.prototype = {
         var artboardLink = nextArtboard.find('a');
         artboardLink.click();
         location.hash = artboardLink[0].hash;
-        this.displayLocation(location.href);
 
         return false;
     },
