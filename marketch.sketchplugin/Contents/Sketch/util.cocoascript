@@ -185,7 +185,11 @@ var util = {
                     'EXPORT': '导出',
                     'FORMAT': '格式',
                     'EXPORTLAYER': '导出选中图层',
-                    'COPYSUCCESS': '复制成功'
+                    'COPYSUCCESS': '复制成功',
+                    'UPDATED': '',
+                    'TODAY': '',
+                    'YESTERDAY': '',
+                    'MONTHS': ['', '', '', '', '', '', '', '', '', '', '', '']
                 }
             },
             'en': {
@@ -228,7 +232,14 @@ var util = {
                     'EXPORT': 'Export',
                     'FORMAT': 'Format',
                     'EXPORTLAYER': 'Export Activity Layer',
-                    'COPYSUCCESS': 'Copy Success'
+                    'COPYSUCCESS': 'Copy Success',
+                    'UPDATED': 'Updated',
+                    'TODAY': 'today',
+                    'YESTERDAY': 'yesterday',
+                    'MONTHS': ['January', 'Febrary', 'March',
+                        'April', 'May', 'June', 'July',
+                        'August', 'September', 'October',
+                        'November', 'December']
                 }
             }
         }

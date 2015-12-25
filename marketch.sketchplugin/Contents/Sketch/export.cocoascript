@@ -36,6 +36,7 @@ var Marketch = function(){
         //是否导出每个子图层
         exportEveryLayer: false,
         scale2x: false,
+        versionDate: '',
         //sketch文件名
         sketchName: '',
         language: I18N.language,
