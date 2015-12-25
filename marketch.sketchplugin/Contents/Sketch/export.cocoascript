@@ -92,6 +92,8 @@ Marketch.prototype = {
 
         this.sketchData.scale2x = expConfig.scale2x;
 
+        this.sketchData.versionDate = new Date().toString();
+
         //导出选中画板
         if(expConfig.artboard == 'selected'){
             loopObj = ctx.selection.objectEnumerator();

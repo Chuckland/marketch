@@ -478,7 +478,7 @@ Marketch.prototype = {
             self.displayLocation(e.target.href);
 
             // Scroll page to artboard top
-            $(".artboard").scrollTop(0);
+            $('.artboard').scrollTop(0);
         }).eq(0).click();
 
         // Show artboard by passed URL parameter
@@ -1186,7 +1186,44 @@ Marketch.prototype = {
     },
 
     displayLocation: function(location) {
+        // decodeURIComponent for correct displaying russian titles
         $('#location').text(decodeURIComponent(location));
+    },
+
+    buildVersion: function() {
+        var versionDate = new Date(this.sketchData.versionDate);
+        this.displayVersionDate(versionDate);
+    },
+
+    displayVersionDate: function(date) {
+        if (!date) {
+            return;
+        }
+
+        var monthStrings = this.I18N['MONTHS'];
+        var now = new Date();
+        var result = this.I18N['UPDATED'];
+
+        var sameMonthAndYear =
+            (now.getYear() - date.getYear() === 0) &&
+            (now.getMonth() - date.getMonth() === 0);
+        var daysDiff = now.getDate() - date.getDate();
+
+        if (sameMonthAndYear && (daysDiff === 0)) {
+            result += " " + this.I18N['TODAY'];
+        } else if (sameMonthAndYear && (daysDiff === 1)) {
+            result += " " + this.I18N['YESTERDAY'];
+        } else {
+            result += " " + monthStrings[date.getMonth()] + " " + date.getDate();
+            if (now.getYear() - date.getYear() !== 0) {
+                result += " " + date.getYear();
+            }
+        }
+
+        var minutesString = "" + (date.getMinutes() > 9) ? date.getMinutes() : ("0" + date.getMinutes());
+        result += " " + date.getHours() + ":" + minutesString;
+
+        $("#version").text(result);
     }
 }
 
