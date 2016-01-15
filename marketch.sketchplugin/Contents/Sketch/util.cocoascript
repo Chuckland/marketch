@@ -19,7 +19,7 @@ var console = (function(){
             [view setVerticallyResizable:true];
             [view setHorizontallyResizable:true];
             [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-            // [[view textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
+            //[[view textContainer] setContainerSize:NSMakeSize(FLT_MAX, FLT_MAX)];
             [[view textContainer] setWidthTracksTextView:false];
 
             [scrollview setDocumentView:view];
@@ -75,10 +75,10 @@ var console = (function(){
 
             log(msg);
             view.setString(console);
-            log(msg);
+            //log(msg);
             persistent.console = console;
             view.scrollRangeToVisible(NSMakeRange(view.string.length, 0));
-            [[view textStorage] setFont:[NSFont fontWithName:@"Consolas" size:11]];
+            [[view textStorage] setFont:[NSFont fontWithName:@'Consolas' size:11]];
         },
         clear: function(){
             var logWindow = logWindows();
@@ -142,14 +142,14 @@ var util = {
 
     I18N: (function(){
         var defs = [NSUserDefaults standardUserDefaults];
-        var languages = [[defs objectForKey:@"AppleLanguages"] objectAtIndex:0];
+        var languages = [[defs objectForKey:@'AppleLanguages'] objectAtIndex:0];
         //多语言配置
         var I18N = {
             'zh-cn': {
                 'language': 'cn',
                 'EXPORT': '导出',
                 'EXPORTTO': '导出到：',
-                'EXPORTING': '正在导出，请稍后...',
+                'EXPORTING': '正在导出，请稍候...',
                 'NOARTBOARD': '没有选择任何画板',
                 'EXPORTSUCCESS': '打包导出成功',
                 'EXPORTFAIL': '打包导出失败',
@@ -163,8 +163,7 @@ var util = {
                 'EXPORTASZIP': '',
                 'EXPORTEVERYLAYER': '把每个图层作为图片导出',
                 'SCALE2X': '',
-                'EXPORTSOURCEFILE': '',
-                'REVEALINFINDER': '导出完成后在 Finder 中打开',
+                'SAVESKETCHSOURCE': '保存sketch源文件',
                 'CONFIRM': '确认',
                 'CANCEl': '取消',
                 //预览页面多语言
@@ -189,7 +188,9 @@ var util = {
                     'UPDATED': '',
                     'TODAY': '',
                     'YESTERDAY': '',
-                    'MONTHS': ['', '', '', '', '', '', '', '', '', '', '', '']
+                    'MONTHS': ['', '', '', '', '', '', '', '', '', '', '', ''],
+                    'TEXTSHAREDSTYLE': '文字样式',
+                    'SHAPESHAREDSTYLE': '图层样式'
                 }
             },
             'en': {
@@ -198,6 +199,7 @@ var util = {
                 'EXPORTTO': 'Export to',
                 'EXPORTING': 'Exporting...',
                 'NOARTBOARD': 'No artboards found.',
+                'EXPORTING': 'Exporting...',
                 'EXPORTSUCCESS': 'Export success.',
                 'EXPORTFAIL': 'Export fail.',
                 'NEWVERSION': 'Marketch has new version({newversion}). Please reinstalling form sketch toolbox.',
@@ -210,8 +212,7 @@ var util = {
                 'EXPORTASZIP': 'Export as ZIP',
                 'EXPORTEVERYLAYER': 'Export all layers as image',
                 'SCALE2X': 'Export 2x layers',
-                'EXPORTSOURCEFILE': 'Copy Sketch file',
-                'REVEALINFINDER': 'Reveal in Finder after exporting',
+                'SAVESKETCHSOURCE': 'Save Sketch file',
                 'CONFIRM': 'Confirm',
                 'CANCEl': 'Cancel',
                 //预览页面多语言
@@ -239,7 +240,9 @@ var util = {
                     'MONTHS': ['January', 'Febrary', 'March',
                         'April', 'May', 'June', 'July',
                         'August', 'September', 'October',
-                        'November', 'December']
+                        'November', 'December'],
+                    'TEXTSHAREDSTYLE': 'Text Styles',
+                    'SHAPESHAREDSTYLE': 'Layer Styles'
                 }
             }
         }
@@ -316,7 +319,7 @@ var util = {
 
         [zipTask setLaunchPath:@'/usr/bin/ditto'];
         //zip参数
-        [zipTask setArguments:[NSArray arrayWithObjects: @"-c", @"-k", @"-X", @"--rsrc", zipFile, destination, nil]];
+        [zipTask setArguments:[NSArray arrayWithObjects: @'-c', @'-k', @'-X', @'--rsrc', zipFile, destination, nil]];
 
         [zipTask launch];
         [zipTask waitUntilExit];
@@ -328,6 +331,24 @@ var util = {
             //task执行成功
             return true;
         }
+    },
+
+    //根据objectId获取shared style名称
+    getSharedStyleFromID: function(id, type) {
+        var sharedStyleObjects = NSArray.alloc();
+        if(type == 'text'){
+            sharedStyleObjects = doc.documentData().layerTextStyles().objects();
+        }
+        if(type == 'shape'){
+            sharedStyleObjects = doc.documentData().layerStyles().objects();
+        }
+        for (var i = 0; i < sharedStyleObjects.count(); i++) {
+            var sharedStyle = sharedStyleObjects.objectAtIndex(i);
+            if(sharedStyle.objectID() == id){
+                return sharedStyle;
+            }
+        }
+        return null;
     },
 
     /**
@@ -352,7 +373,9 @@ var util = {
             y: Math.ceil(layerFrame.origin.y),
             zIndex: config.zIndex,
             width: Math.ceil(layerFrame.size.width),
-            height: Math.ceil(layerFrame.size.height)
+            height: Math.ceil(layerFrame.size.height),
+            sharedStyleType: '',
+            sharedStyle: ''
         };
 
         //修正边框对图形、位图的位置影响
@@ -362,24 +385,27 @@ var util = {
 
             if(border && border.isEnabled()){
                 borderWidth = border.thickness();
-
+                layerData.borderWidth = borderWidth;
                 //边框位置为center
                 if(border.position() == 0){
                     //补偿坐标
                     layerData.x = layerData.x - parseInt(borderWidth/2, 10);
                     layerData.y = layerData.y - parseInt(borderWidth/2, 10);
                     //补偿尺寸
-                    layerData.width = layerData.width + borderWidth;
-                    layerData.height = layerData.height + borderWidth;
+                    layerData.width = layerData.width - (borderWidth);
+                    layerData.height = layerData.height - (borderWidth);
                 }
-                //边框位置为outside
+                //边框位置为Inside
+                if(border.position() == 1){
+                    //补偿尺寸
+                    layerData.width = layerData.width - (borderWidth * 2);
+                    layerData.height = layerData.height - (borderWidth * 2);
+                }
+                //边框位置为Outside
                 if(border.position() == 2){
                     //补偿坐标
-                    layerData.x = layerData.x - borderWidth;
-                    layerData.y = layerData.y - borderWidth;
-                    //补偿尺寸
-                    layerData.width = layerData.width + (borderWidth * 2);
-                    layerData.height = layerData.height + (borderWidth * 2);
+                    layerData.x = layerData.x - parseInt(borderWidth, 10);
+                    layerData.y = layerData.y - parseInt(borderWidth, 10);
                 }
             }
         }
@@ -400,6 +426,7 @@ var util = {
             var textAlign = util.getTextAlign(layer);
             var fontWeight = util.getFontWeight(layer);
             var fontStyle = layer.style();
+            var sharedObjectId = layer.style().sharedObjectID();
 
             //文字内容
             layerData.html = util.toJSString(layer.stringValue(), {encode: true});
@@ -419,12 +446,22 @@ var util = {
             if(fontWeight){
                 layerData.style['font-weight'] = fontWeight;
             }
+
+            if(sharedObjectId != null){
+                sharedStyle = util.getSharedStyleFromID(sharedObjectId, 'text');
+                if(sharedStyle){
+                    layerData.sharedStyleType = 'TEXTSHAREDSTYLE';
+                    layerData.sharedStyle = util.toJSString(sharedStyle.name());
+                }
+            }
+
             return layerData;
         }
 
         //图形
         if(config.type == 'shape'){
             var shapeClassName = layer.layers().firstObject().className();
+            var sharedObjectId = layer.style().sharedObjectID();
             layerData.style = util.filterSketchCss(layer.CSSAttributes());
 
             layerData.style.width = layerData.width +'px';
@@ -449,6 +486,14 @@ var util = {
             if(shapeClassName == 'MSOvalShape' && Math.abs(layerData.width - layerData.height) <= 2){
                 layerData.style['border-radius'] = '100%';
             }
+
+            if(sharedObjectId != null){
+                sharedStyle = util.getSharedStyleFromID(sharedObjectId, 'shape');
+                if(sharedStyle){
+                    layerData.sharedStyleType = 'SHAPESHAREDSTYLE';
+                    layerData.sharedStyle = util.toJSString(sharedStyle.name());
+                }
+            }
             return layerData;
         }
     },
@@ -464,7 +509,17 @@ var util = {
             var cssAttr = util.toJSString(cssAttrs.objectAtIndex(i));
             if(!cssAttr.match(/\/\*[^\*]*?\*\/$/g)){
                 cssAttr = cssAttr.split(':');
-                style[util.trim(cssAttr[0])] = util.trim(cssAttr[1].replace(';', ''))
+                var attrKey = util.trim(cssAttr[0]);
+                var attrValue = util.trim(cssAttr[1].replace(';', ''));
+                //过滤掉无效的边框参数
+                if(attrKey === 'border' && /^0px/i.test(attrValue)){
+                    continue;
+                }
+                //除了字体外，都转换为小写
+                if(attrKey != 'font-family'){
+                    attrValue = attrValue.toLowerCase();
+                }
+                style[attrKey] = attrValue;
             }
         }
         return style;
