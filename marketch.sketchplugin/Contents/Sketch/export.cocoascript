@@ -407,7 +407,7 @@ Marketch.prototype = {
         var textLayers = parentLayer.children().filteredArrayUsingPredicate(predicate);
 
         //图层尺寸小于64*64 并且不包含文字图层，
-        if(frame.width <= 64 && frame.height <= 64 && textLayers.count() == 0 && parentLayer.class() != 'MSArtboardGroup'){
+        if(frame.width <= 64 && frame.height <= 64 && textLayers.count() == 0 && parentLayer.className() != 'MSArtboardGroup'){
             return true;
         }
 
@@ -425,7 +425,7 @@ Marketch.prototype = {
         //图层是否已经被按组导出了
         var hasExportByGroup = false;
         //图层类名
-        var layerClass = (layer.class()).toString().toLowerCase();
+        var layerClass = (layer.className()).toString().toLowerCase();
         //是否是蒙版子节点
         var isMaskChildLayer = false;
 
@@ -444,7 +444,7 @@ Marketch.prototype = {
         }
 
         //向上遍历
-        while(layer.class() != 'MSArtboardGroup'){
+        while(layer.className() != 'MSArtboardGroup'){
             var theLayerId = util.toJSString(layer.objectID());
             //parenggroup不可见
             if(!layer.isVisible()){
@@ -491,32 +491,32 @@ Marketch.prototype = {
         };
 
         sliceRect = NSMakeRect(absoluteRect.x(), absoluteRect.y(), absoluteRect.width(), absoluteRect.height());
-        slice = [[MSSliceMaker slicesFromExportableLayer:layer inRect:sliceRect useIDForName:false] firstObject];
-        slice.page = doc.currentPage().copyLightweight();
+        slice = [[MSExportRequest exportRequestsFromExportableLayer:layer] firstObject];
+        slice.page = doc.currentPage();//.copyLightweight();
         slice.format = exportConfig.format;
 
         if(options.name == 'artboard'){
             //画板按1x导出
             slice.scale = 1;
             exportConfig.name = options.path +'/'+ options.name +'.png';
-            [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
+            [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
         }else{
             //导出2x的图
             if (options.scale2x) {
                 slice.scale = 2;
-                [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
+                [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
             }
             //导出1x的图
             slice.scale = 1;
             exportConfig.name = exportConfig.name.replace('@2x.png', '@1x.png');
-            [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
+            [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
 
             if(/^svg/i.test(layer.name())){
                 slice = [[MSSliceMaker slicesFromExportableLayer:layer] firstObject];
                 slice.format = 'svg';
                 // 图层名以“svg”开头时，作为svg导出
                 exportConfig.name = exportConfig.name.replace('@1x.png', '.svg');
-                [[MSSliceExporter dataForRequest: slice] writeToFile:exportConfig.name atomically:true];
+                [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
             }
         }
     },
