@@ -2,7 +2,15 @@
 
 Marketch is a Sketch 3 plug-in for automatically generating html page that can measure and get CSS styles on it.
 
+![Banner](https://raw.githubusercontent.com/angusjune/marketch/master/logo.png)
+
 ## Change Log
+
+#### `v1.0.18`
+* [update] new interface
+
+#### `v1.0.13`
+* [update] support sketch 3.5
 
 #### `v1.0.10`
 * [new] use "svg" prefix for layer name to tell marketch export the layer as svg file.
@@ -39,8 +47,11 @@ Notice
 
 ## Preview
 
-![preview](resource/1.jpg)
 ![preview](resource/2.png)
+![preview](resource/README_1.png)
+![preview](resource/README_2.png)
+![preview](resource/README_3.png)
+![preview](resource/README_4.png)
 
 ## Demo
 [http://tudou527.github.io/marketch/](http://tudou527.github.io/marketch/)
@@ -61,4 +72,5 @@ If you want to contribute to our code base, here's a [contribution guide](contri
 ## Thanks
 * [MForever78](https://github.com/MForever78)
 * [noyobo](https://github.com/noyobo)
-* 许诺
+* [xunuo](https://github.com/xunuo)
+* [rayps](https://github.com/rayps)

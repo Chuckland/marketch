@@ -114,10 +114,10 @@ Marketch.prototype = {
             loopObj = doc.pages().objectEnumerator();
             while(loopVar = loopObj.nextObject()){
                 // 不导出以单个“-”开头的页面和画板
-                if(!/^-{1}[^-]*$/.test(loopVar.name())){
+                if(!/^-{1}[^-]*?.*$/.test(loopVar.name())){
                     var artloops = loopVar.artboards().objectEnumerator();
                     while(artboard = artloops.nextObject()){
-                        if(!/^-{1}[^-]*$/.test(artboard.name())){
+                        if(!/^-{1}[^-]*?.*$/.test(artboard.name())){
                             this.allArtboards.addObject(artboard);
                         }
                     }
@@ -290,6 +290,9 @@ Marketch.prototype = {
             scale2x: this.sketchData.scale2x
         }
 
+        // TODO clear debug
+        console.log("exportConfig inited")
+
         //画板下的切片
         artboardData.slice = [];
         //画板下的图层
@@ -354,13 +357,13 @@ Marketch.prototype = {
                     case 'MSTextLayer':
                         //保存文字图层数据
                         layerData = util.getLayerData(theLayer, {type: 'text', zIndex: this.artboardZIndex});
-                        artboardData.layer.push(layerData);
+                        layerData && artboardData.layer.push(layerData);
                         break;
 
                     case 'MSSliceLayer':
                         //保存切片图层数据
                         layerData = util.getLayerData(theLayer, {type: 'slice', zIndex: this.artboardZIndex});
-                        artboardData.slice.push(layerData);
+                        layerData && artboardData.slice.push(layerData);
                         //导出切片
                         exportLayerAsImage && this.exportLayerAsImage(theLayer, {
                             name: layerName,
@@ -372,7 +375,7 @@ Marketch.prototype = {
                     case 'MSBitmapLayer':
                         //保存位图数据
                         layerData = util.getLayerData(theLayer, {type: 'bitmap', zIndex: this.artboardZIndex});
-                        artboardData.layer.push(layerData);
+                        layerData && artboardData.layer.push(layerData);
                         //导出位图
                         exportLayerAsImage && this.exportLayerAsImage(theLayer, exportConfig);
                         break;
@@ -380,7 +383,7 @@ Marketch.prototype = {
                     case 'MSShapeGroup':
                         //保存形状数据
                         layerData = util.getLayerData(theLayer, {type: 'shape', zIndex: this.artboardZIndex});
-                        artboardData.layer.push(layerData);
+                        layerData && artboardData.layer.push(layerData);
                         //导出形状组图片
                         exportLayerAsImage && this.exportLayerAsImage(theLayer, exportConfig);
                         break;
@@ -484,39 +487,43 @@ Marketch.prototype = {
          * 但是某些情况下得到的坐标尺寸与实际有1px的误差
          */
         var absoluteRect = layer.absoluteRect();
-        //导出配置
-        var exportConfig = {
-            name: options.path +'/'+ options.name +'@2x.png',
-            format: 'png'
-        };
+        //导出名
+        var exportName = options.path +'/'+ options.name;
 
         sliceRect = NSMakeRect(absoluteRect.x(), absoluteRect.y(), absoluteRect.width(), absoluteRect.height());
         slice = [[MSExportRequest exportRequestsFromExportableLayer:layer] firstObject];
         slice.page = doc.currentPage();//.copyLightweight();
-        slice.format = exportConfig.format;
 
         if(options.name == 'artboard'){
             //画板按1x导出
             slice.scale = 1;
-            exportConfig.name = options.path +'/'+ options.name +'.png';
-            [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
+            [doc saveArtboardOrSlice:slice toFile:exportName + '.png'];
+        }else if (options.scale2x){
+            // 0.5x
+            slice.scale = 0.5;
+            [doc saveArtboardOrSlice:slice toFile:exportName +'@0.5x.png'];
+
+            // 1x
+            slice.scale = 1;
+            [doc saveArtboardOrSlice:slice toFile:exportName +'@1x.png'];
+
+            // 2x
+            slice.scale = 2;
+            [doc saveArtboardOrSlice:slice toFile:exportName +'@2x.png'];
+
+            // 3x
+            slice.scale = 3;
+            [doc saveArtboardOrSlice:slice toFile:exportName +'@3x.png'];
         }else{
-            //导出2x的图
-            if (options.scale2x) {
-                slice.scale = 2;
-                [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
-            }
             //导出1x的图
             slice.scale = 1;
-            exportConfig.name = exportConfig.name.replace('@2x.png', '@1x.png');
-            [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
+            [doc saveArtboardOrSlice:slice toFile:exportName + '@1x.png'];
 
             if(/^svg/i.test(layer.name())){
-                slice = [[MSSliceMaker slicesFromExportableLayer:layer] firstObject];
+                slice = [[MSExportRequest exportRequestsFromExportableLayer:layer] firstObject];
                 slice.format = 'svg';
                 // 图层名以“svg”开头时，作为svg导出
-                exportConfig.name = exportConfig.name.replace('@1x.png', '.svg');
-                [doc saveArtboardOrSlice:slice toFile:exportConfig.name];
+                [doc saveArtboardOrSlice:slice toFile:exportName + '.svg'];
             }
         }
     },
