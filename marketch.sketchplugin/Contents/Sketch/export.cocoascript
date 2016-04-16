@@ -290,9 +290,6 @@ Marketch.prototype = {
             scale2x: this.sketchData.scale2x
         }
 
-        // TODO clear debug
-        console.log("exportConfig inited")
-
         //画板下的切片
         artboardData.slice = [];
         //画板下的图层
