@@ -539,7 +539,7 @@ var util = {
         // If specified value wasn't saved, then get initial one
     	for (var key in initialValues) {
     		dVal = defaultValues[key];
-    		if (dVal == nil) {
+    		if (dVal == nil || parseInt(dVal) === -1) {
                 defaultValues[key] = initialValues[key];
             }
     	}
