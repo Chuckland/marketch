@@ -358,7 +358,7 @@ var util = {
      */
     getLayerData: function(layer, config){
         //图层在画板中的位置、尺寸：frameInArtboard
-        var layerFrame = layer.frameInArtboard();
+        var layerFrame = layer.frame();
         var layerId = util.toJSString(layer.objectID());
         var nameConfig = (config.type == 'artboard') ? {encode: true, escapeLine:true} : {encode: true};
         //图层基本信息
@@ -367,11 +367,11 @@ var util = {
             //图层路径默认与图层id一致
             src: layerId,
             name: util.toJSString(layer.name(), nameConfig),
-            x: Math.ceil(layerFrame.origin.x),
-            y: Math.ceil(layerFrame.origin.y),
+            x: Math.ceil(layer.absoluteRect().x()),
+            y: Math.ceil(layer.absoluteRect().y()),
             zIndex: config.zIndex,
-            width: Math.ceil(layerFrame.size.width),
-            height: Math.ceil(layerFrame.size.height),
+            width: Math.ceil(layerFrame.width()),
+            height: Math.ceil(layerFrame.height()),
             sharedStyleType: '',
             sharedStyle: ''
         };
